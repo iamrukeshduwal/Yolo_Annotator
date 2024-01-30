@@ -21,18 +21,25 @@ The YOLO Annotator is a simple image annotation tool developed in Python using T
 
 ## Usage
 
-1. For multi-class tasks, modify 'class.txt' with your class candidates. Before labeling a bounding box, choose the 'Current Class' in the Combobox or by pressing <kbd>1-9</kbd> on your keyboard.
-2. Run `python main.py`.
-3. Click `LoadImage`, select a folder that contains a list of images.
+1. Run `python main.py`.
+2. Click `LoadImage`, select a folder that contains a list of images.
+3. For multi-class tasks, modify 'class.txt' with your class candidates. Before labeling a bounding box, choose the 'Current Class' in the Combobox or by pressing <kbd>1-9</kbd> on your keyboard.
 4. To create a new bounding box, left-click to select the first vertex. Move the mouse to draw a rectangle and left-click again to select the second vertex.
-   - To delete the bounding box while drawing, <kbd>right click</kbd>.
-   - To delete an existing bounding box,click inside box or  select it from the listbox and click `Clear`.
+   - To delete the existing bounding box while drawing, press <kbd>right click inside respective bbox</kbd> or select it from the listbox and click `Clear`<kbd>
    - To delete all existing bounding boxes in the image, click `ClearAll` or press <kbd>r</kbd>.
 5. After finishing one image, click `Next` or press <kbd>d</kbd> to advance. Click `Prev` or press <kbd>a</kbd> to reverse. Alternatively, input the index and click `Go` to navigate to an arbitrary image.
    - The labeling result will be saved in **Labels/[folder name]/..** only if the 'Next' button is clicked.
    - **The checkpoint of the last Image Number will be saved when the 'Next' button is clicked.**
 6. Click `Skip` to skip an unwanted image from the directory and skip the annotation for that image (the skipped image path will be saved in log/skip.txt).
-7. Click `ConvertYOLO` or press <kbd>c</kbd> to convert the labeling result to YOLO format. The result will be saved in **Result_YOLO/[folder name]/..**
+7. Click `ConvertYOLO` or press <kbd>c</kbd> to convert the labeling result to YOLO format. The result will be saved in **Result_YOLO/[folder name]/..**.
+8. Use the 'Add Class' and 'Delete Class' buttons in the UI to manage classes dynamically.
+
+## Additional Features
+
+- **Bounding Box Count**: The tool provides the count of the number of bounding boxes drawn inside image.
+- **Color Assignment**: Each class is assigned a unique color for better visualization.
+- **Paste Last Bounding Box**: Press 'v' to paste the last drawn bounding box where the mouse pointer is located.
+- **Scroll Support**: Users can scroll horizontally and vertically for larger images.
 
 ## How to Run
 
