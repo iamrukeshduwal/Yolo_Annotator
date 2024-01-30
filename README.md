@@ -46,8 +46,8 @@ The YOLO Annotator is a simple image annotation tool developed in Python using T
 1. Make sure you have Python installed on your system.
 2. Clone this repository:
    git clone https://github.com/iamrukeshduwal/Yolo_Annotator.git
-   cd Yolo_Annotator
-   python main.py
+3. cd Yolo_Annotator
+4. python main.py
 
 ## License
 This project is open-source and currently does not have a specific license. You are free to view, use, and modify the code for personal or educational purposes. If you plan to distribute or use this project in a commercial product, please consider adding an appropriate open-source license.
