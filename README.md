@@ -50,6 +50,6 @@ The YOLO Annotator is a simple image annotation tool developed in Python using T
    python main.py
 
 ## License
-Feel free to copy and paste this content into your README.md file. If you have more changes or specific details to add, please let me know!
+This project is open-source and currently does not have a specific license. You are free to view, use, and modify the code for personal or educational purposes. If you plan to distribute or use this project in a commercial product, please consider adding an appropriate open-source license.
 
 
