@@ -1,2 +1,3 @@
 white_tablet
 brown_tablet
+blank

@@ -1,3 +1,2 @@
-H:\Test_Virgin\Yolo_MultiClass_LabelTool/images/dog/dogcat.jpg
-H:\Test_Virgin\Yolo_MultiClass_LabelTool/images/tablet/test1.jpg
-H:\Test_Virgin\Yolo_MultiClass_LabelTool/images/tablet/test2.jpg
+H:\Test_Virgin\yolo_annotator/images/brown_tablet/test1.jpg
+H:\Test_Virgin\yolo_annotator/images/white_tablet/test2.jpg
