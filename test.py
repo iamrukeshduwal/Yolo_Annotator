@@ -76,11 +76,13 @@ class LabelTool():
         self.mainPanel.bind("<Button-1>", self.mouseClick)
         self.mainPanel.bind("<Button-3>", self.mouseClick)
         self.mainPanel.bind("<Motion>", self.mouseMove)
+        # self.mainPanel.focus_set() #By calling focus_set() on a particular widget, you are designating that widget as the one that should receive keyboard events. 
+        self.mainPanel.bind('v', self.pasteLastBbox) #press 'v' to get bbox of last drawn
         self.parent.bind("a", self.prevImage) # press 'a' to go backforward
         self.parent.bind("d", self.nextImage) # press 'd' to go forward
         self.parent.bind("r", self.clearBBoxShortcut)
         self.mainPanel.grid(row = 1, column = 1, columnspan = 3, rowspan = 4, sticky = W+N)
-        self.parent.bind('v', self.pasteLastBbox) #press 'v' to get bbox of last drawn
+
 
 
 
@@ -160,7 +162,7 @@ class LabelTool():
         # example pannel for illustration
         self.egPanel = Frame(self.frame, border = 10)
         self.egPanel.grid(row = 1, column = 0, rowspan = 5, sticky = N)
-        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\n1-9 : Select Class")
+        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\n1-9 : Select Class")
         self.tmpLabel2.pack(side = TOP)
         self.tmpLabel3 = Label(self.egPanel, text = "\nBasic Usage :\n1.Load Image\n2.Annotate\n3.Convert Yolo")
         self.tmpLabel3.pack(side = TOP)
@@ -191,7 +193,7 @@ class LabelTool():
             # Calculate and return the size
             width = x2 - x1
             height = y2 - y1
-            return width, height
+            return width, height,_
         else:
             return None
 
@@ -203,30 +205,41 @@ class LabelTool():
                 return
 
             try:
+                # Refresh the canvas
+                self.mainPanel.update_idletasks()
+
                 size = self.getLastBboxSize()
                 if size is None:
                     return
-                print("V pressed")
-                x, y = self.mainPanel.canvasx(event.x), self.mainPanel.canvasy(event.y)
-                x1, y1 = x, y
-                x2, y2 = x1 + size[0]-133, y1 + size[1]-26
 
-                print("Event Coordinates (event.x, event.y):", event.x, event.y)
-                print("Canvas Coordinates (canvasx, canvasy):", x, y)
+                # Calculate x, y coordinates
+                x, y = self.mainPanel.canvasx(event.x), self.mainPanel.canvasy(event.y)
+
+                # Check if bounding box is outside image boundaries
+                if x < 0 or y < 0 or x + size[0] > self.tkimg.width() or y + size[1] > self.tkimg.height():
+                    messagebox.showwarning("Warning", "Bounding box cannot be drawn outside the image.")
+                    return
+
+                x1, y1 = x, y
+                x2, y2 = x1 + size[0], y1 + size[1]
+
                 # Draw the bounding box
-                self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
-                idx_1 = self.get_class_index(self.currentLabelclass)
+                self.bboxList.append((x1, y1, x2, y2, size[2]))
+                idx_1 = self.get_class_index(size[2])
+                print("When v pressed, class and color", size[2], idx_1)
                 tmpId = self.mainPanel.create_rectangle(int(x1), int(y1), int(x2), int(y2), width=2, outline=COLORS[idx_1])
                 self.bboxIdList.append(tmpId)
+
+                self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' % (
+                    size[2], x1, y1, x2, y2))
+                self.listbox.itemconfig(len(self.bboxIdList) - 1, fg=COLORS[idx_1])
 
                 # Update the total bbox label
                 self.totalBboxLabel.config(text='Total BBoxes: {}'.format(len(self.bboxList)))
 
-                # Force canvas update
-                self.mainPanel.update()
-
             except Exception as e:
                 messagebox.showerror("Error", str(e))
+
 
       
 	# Add this function to the LabelTool class for adding a new class
@@ -361,6 +374,7 @@ class LabelTool():
         new_mainPanel.bind("<Button-1>", self.mouseClick)
         new_mainPanel.bind("<Button-3>", self.removeBBox)
         new_mainPanel.bind("<Motion>", self.mouseMove)
+        self.mainPanel.focus_set() #By calling focus_set() on a particular widget, you are designating that widget as the one that should receive keyboard events. 
 
         new_mainPanel.bind('v', self.pasteLastBbox) #press 'v' to get bbox of last drawn
 
@@ -441,17 +455,8 @@ class LabelTool():
         
         if self.tkimg:
             print("index",self.index)
-
-
             x = self.mainPanel.canvasx(event.x)  # Adjust for scroll position
             y = self.mainPanel.canvasy(event.y)  # Adjust for scroll position
-
-            # In mouseClick method
-            print("Canvas Coordinates (canvasx, canvasy):", x, y)
-
-            # In mouseClick method
-            print("Mouse Click Coordinates (event.x, event.y):", event.x, event.y)
-
             if event.num == 1:  # Left mouse button clicked
                 if self.STATE['click'] == 0:
                     self.STATE['x'], self.STATE['y'] = x, y
@@ -459,6 +464,8 @@ class LabelTool():
                     x1, x2 = min(self.STATE['x'], x), max(self.STATE['x'], x)
                     y1, y2 = min(self.STATE['y'], y), max(self.STATE['y'], y)
                     self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
+                    self.index = self.get_class_index(self.currentLabelclass)
+                    print("After index",self.index)
                     self.bboxIdList.append(self.bboxId)
                     self.bboxId = None
                     self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' % (
@@ -537,6 +544,7 @@ class LabelTool():
             if 1 == self.STATE['click']:
                 if self.bboxId:
                     self.mainPanel.delete(self.bboxId)
+                self.index = self.get_class_index(self.currentLabelclass)
                 self.bboxId = self.mainPanel.create_rectangle(self.STATE['x'], self.STATE['y'], x, y, width=2,
                                                             outline=COLORS[self.index])
         
@@ -555,6 +563,7 @@ class LabelTool():
         self.bboxIdList.pop(idx)
         self.bboxList.pop(idx)
         self.listbox.delete(idx)
+        self.mainPanel.focus_set() # focus
     #----------------------------------------------------------------
 
     #-----------------------Clear All Bboxes ------------------------
@@ -564,6 +573,7 @@ class LabelTool():
         self.listbox.delete(0, len(self.bboxList))
         self.bboxIdList = []
         self.bboxList = []
+        self.mainPanel.focus_set() #focus
 
 
     def clearBBoxShortcut(self, event):
@@ -682,6 +692,7 @@ class LabelTool():
             print('set label class to :',self.currentLabelclass)
             self.index = self.get_class_index(self.currentLabelclass)
             print(self.index)
+            self.mainPanel.focus_set() # focus
             
     def setClassShortcut(self, event):
         if event.char.isdigit():
