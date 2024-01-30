@@ -1,3 +1,2 @@
-dog
-cat
-tablet
+white_tablet
+brown_tablet

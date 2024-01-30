@@ -230,7 +230,6 @@ class LabelTool():
                 # Draw the bounding box
                 self.bboxList.append((x1, y1, x2, y2, size[2]))
                 idx_1 = self.get_class_index(size[2])
-                print("When v pressed, class and color", size[2], idx_1)
                 tmpId = self.mainPanel.create_rectangle(int(x1), int(y1), int(x2), int(y2), width=2, outline=COLORS[idx_1])
                 self.bboxIdList.append(tmpId)
 
@@ -262,7 +261,6 @@ class LabelTool():
                 self.classcandidate.current(self.classcnt - 1)
                 self.currentLabelclass = self.classcandidate.get()
                 self.index = int(self.classcnt-1)
-                print("number of classes:",self.classcnt,"Color Index",self.index)
                 messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")
                 
     # Add the deleteClass function
@@ -458,7 +456,6 @@ class LabelTool():
     def mouseClick(self, event):
         
         if self.tkimg:
-            print("index",self.index)
             x = self.mainPanel.canvasx(event.x)  # Adjust for scroll position
             y = self.mainPanel.canvasy(event.y)  # Adjust for scroll position
             if event.num == 1:  # Left mouse button clicked
@@ -469,7 +466,6 @@ class LabelTool():
                     y1, y2 = min(self.STATE['y'], y), max(self.STATE['y'], y)
                     self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
                     self.index = self.get_class_index(self.currentLabelclass)
-                    print("After index",self.index)
                     self.bboxIdList.append(self.bboxId)
                     self.bboxId = None
                     self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' % (
@@ -616,7 +612,6 @@ class LabelTool():
                                         int(float(tmp[2])), int(float(tmp[3])), \
                                         width=2, outline=COLORS[idx_1])
 										 #COLORS[(len(self.bboxList)-1) % len(COLORS)])
-                    # print tmpId
                     self.bboxIdList.append(tmpId)
                     self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' %(tmp[4],int(float(tmp[0])), int(float(tmp[1])), \
                     												  int(float(tmp[2])), int(float(tmp[3]))))
