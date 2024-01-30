@@ -1,0 +1,6 @@
+dog
+cat
+r
+rr
+rrr
+ttt
