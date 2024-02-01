@@ -12,7 +12,7 @@ import convert
 from PIL import *
 
 # colors for the bboxes
-COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'orange', 'brown']
+COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'orange', 'brown','crimson']
 
 # image sizes for the examples
 SIZE = 256, 256
@@ -250,21 +250,25 @@ class LabelTool():
       
 	# Add this function to the LabelTool class for adding a new class
     def addNewClass(self):
-        new_class = askstring("Add New Class", "Enter the name of the new class:")
-        if new_class:
-            if new_class in self.cla_can_temp:
-                messagebox.showwarning("Warning", f"Class '{new_class}' already exists!")
-            else:
-                with open(self.classcandidate_filename, 'a') as class_file:
-                    class_file.write(f"{new_class}\n")
-                self.cla_can_temp.append(new_class)
-                self.classcnt += 1
-                self.classcandidate['values'] = self.cla_can_temp
-                self.classcandidate.current(self.classcnt - 1)
-                self.currentLabelclass = self.classcandidate.get()
-                self.index = int(self.classcnt-1)
-                messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")        
-        self.mainPanel.focus_set() # focus
+        if len(self.cla_can_temp) >= (len(COLORS)):
+            messagebox.showwarning("Warning", f"Class limit exceed!!")
+            return
+        else:
+            new_class = askstring("Add New Class", "Enter the name of the new class:")
+            if new_class:
+                if new_class in self.cla_can_temp:
+                    messagebox.showwarning("Warning", f"Class '{new_class}' already exists!")
+                else:
+                    with open(self.classcandidate_filename, 'a') as class_file:
+                        class_file.write(f"\n{new_class}")
+                    self.cla_can_temp.append(new_class)
+                    self.classcnt += 1
+                    self.classcandidate['values'] = self.cla_can_temp
+                    self.classcandidate.current(self.classcnt - 1)
+                    self.currentLabelclass = self.classcandidate.get()
+                    self.index = int(self.classcnt-1)
+                    messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")        
+            self.mainPanel.focus_set() # focus
 
     # Add the deleteClass function
     def deleteClass(self):
@@ -273,8 +277,6 @@ class LabelTool():
             return
         selected_class = self.classcandidate.get()  
         if selected_class:
-            print(selected_class,"bfore delete",self.cla_can_temp)
-
             confirmation = messagebox.askyesno("Confirmation", f"Do you want to delete the class '{selected_class}'?")
             if confirmation:
                 # Remove the class from the list and update the Combobox
@@ -599,18 +601,34 @@ class LabelTool():
     
         # Add this function to the LabelTool class for adding a new class if it doesn't already exist
     def addNewClass_(self, new_class):
+        if len(self.cla_can_temp) >= (len(COLORS)):
+            messagebox.showwarning("Warning", f"Class limit exceed!!")
+            return
+        else:
             create_new_class = messagebox.askyesno("Found New Class", f"Do you want to add a new class '{new_class}'?")
             if create_new_class:
-                with open(self.classcandidate_filename, 'a') as class_file:
-                    class_file.write(f"{new_class}\n")
+                if self.classcnt == 0:
+                    with open(self.classcandidate_filename, 'a') as class_file:
+                        class_file.write(f"\n{new_class}")
 
-                self.cla_can_temp.append(new_class)
-                self.classcnt += 1
-                self.classcandidate['values'] = self.cla_can_temp
-                self.classcandidate.current(self.classcnt - 1)
-                self.currentLabelclass = self.classcandidate.get()
-                self.index = int(self.classcnt-1)
-                messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")
+                    self.cla_can_temp.append(new_class)
+                    self.classcnt += 1
+                    self.classcandidate['values'] = self.cla_can_temp
+                    self.classcandidate.current(self.classcnt - 1)
+                    self.currentLabelclass = self.classcandidate.get()
+                    self.index = int(self.classcnt-1)
+                    messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")
+                else:
+                    with open(self.classcandidate_filename, 'a') as class_file:
+                        class_file.write(f"{new_class}\n")
+
+                    self.cla_can_temp.append(new_class)
+                    self.classcnt += 1
+                    self.classcandidate['values'] = self.cla_can_temp
+                    self.classcandidate.current(self.classcnt - 1)
+                    self.currentLabelclass = self.classcandidate.get()
+                    self.index = int(self.classcnt-1)
+                    messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")
             else:
                 # User chose not to create the new class, so delete lines with this class from the file
                 self.delete_lines_with_class(self.labelfilename, new_class)
