@@ -105,6 +105,7 @@ class LabelTool():
 
             if self.cla_can_temp:
                 self.classcandidate['values'] = self.cla_can_temp
+                # print(self.classcandidate.current(0))
                 self.classcandidate.current(0)
                 self.parent.bind('<Key>', self.setClassShortcut)
                 self.currentLabelclass = self.classcandidate.get()  # init
@@ -255,7 +256,7 @@ class LabelTool():
                 messagebox.showwarning("Warning", f"Class '{new_class}' already exists!")
             else:
                 with open(self.classcandidate_filename, 'a') as class_file:
-                    class_file.write(f"\n{new_class}")
+                    class_file.write(f"{new_class}\n")
                 self.cla_can_temp.append(new_class)
                 self.classcnt += 1
                 self.classcandidate['values'] = self.cla_can_temp
@@ -292,7 +293,7 @@ class LabelTool():
 
             
                 messagebox.showinfo("Info", f"Class '{selected_class}' deleted successfully!")
-                self.delete_lines_with_class(self.labelfilename,selected_class)
+                # self.delete_lines_with_class(self.labelfilename,selected_class)
                 self.delete_bbox_by_class(selected_class)
 
         else:
@@ -601,7 +602,7 @@ class LabelTool():
             create_new_class = messagebox.askyesno("Found New Class", f"Do you want to add a new class '{new_class}'?")
             if create_new_class:
                 with open(self.classcandidate_filename, 'a') as class_file:
-                    class_file.write(f"\n{new_class}")
+                    class_file.write(f"{new_class}\n")
 
                 self.cla_can_temp.append(new_class)
                 self.classcnt += 1
