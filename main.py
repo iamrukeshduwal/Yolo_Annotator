@@ -166,7 +166,7 @@ class LabelTool():
         # example pannel for illustration
         self.egPanel = Frame(self.frame, border = 10)
         self.egPanel.grid(row = 1, column = 0, rowspan = 5, sticky = N)
-        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\nRight Click : Delete BB\n1-9 : Select Class")
+        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\nb: Paste last BB from prev image\nRight Click : Delete BB\n1-9 : Select Class")
         self.tmpLabel2.pack(side = TOP)
         self.tmpLabel3 = Label(self.egPanel, text = "\nBasic Usage :\n1.Load Image\n2.Annotate\n3.Convert Yolo")
         self.tmpLabel3.pack(side = TOP)
