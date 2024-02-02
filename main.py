@@ -65,6 +65,7 @@ class LabelTool():
 
         self.class_to_color = {}
         self.class_list_from_file = {'color':[]} #store class list from file
+        self.last_b_box = [] #store last box coordinates
 
 
 
@@ -79,6 +80,7 @@ class LabelTool():
         self.mainPanel.bind("<Button-3>", self.mouseClick)
         self.mainPanel.bind("<Motion>", self.mouseMove)
         self.mainPanel.bind('v', self.pasteLastBbox) #press 'v' to get bbox of last drawn
+        self.mainPanel.bind('b', self.pasteLastBboxFile) #press 'v' to get bbox of last drawn from previous file
         self.parent.bind("a", self.prevImage) # press 'a' to go backforward
         self.parent.bind("d", self.nextImage) # press 'd' to go forward
         self.parent.bind("r", self.clearBBoxShortcut)
@@ -246,6 +248,44 @@ class LabelTool():
 
             except Exception as e:
                 messagebox.showerror("Error", str(e))
+    #----------------------------------------------------------------Function to paste last bbox from previous list----------------------------------------------------------------
+    def pasteLastBboxFile(self, event):
+            if self.tkimg:
+                try:
+                    # Refresh the canvas
+                    self.mainPanel.update_idletasks()
+
+                    size = self.last_b_box
+                    if len(size) == 0:
+                        messagebox.showerror("Error", "No bounding boxes available to paste.")
+                        return
+
+                    # Calculate x, y coordinates
+                    x, y = self.mainPanel.canvasx(event.x), self.mainPanel.canvasy(event.y)
+
+                    # Check if bounding box is outside image boundaries
+                    if x < 0 or y < 0 or x + size[0] > self.tkimg.width() or y + size[1] > self.tkimg.height():
+                        messagebox.showwarning("Warning", "Bounding box cannot be drawn outside the image.")
+                        return
+
+                    x1, y1 = x, y
+                    x2, y2 = x1 + size[0], y1 + size[1]
+
+                    # Draw the bounding box
+                    self.bboxList.append((x1, y1, x2, y2, size[2]))
+                    idx_1 = self.get_class_index(size[2])
+                    tmpId = self.mainPanel.create_rectangle(int(x1), int(y1), int(x2), int(y2), width=2, outline=COLORS[idx_1])
+                    self.bboxIdList.append(tmpId)
+
+                    self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' % (
+                        size[2], x1, y1, x2, y2))
+                    self.listbox.itemconfig(len(self.bboxIdList) - 1, fg=COLORS[idx_1])
+
+                    # Update the total bbox label
+                    self.totalBboxLabel.config(text='Total BBoxes: {}'.format(len(self.bboxList)))
+
+                except Exception as e:
+                    messagebox.showerror("Error", str(e))
 
       
 	# Add this function to the LabelTool class for adding a new class
@@ -259,15 +299,27 @@ class LabelTool():
                 if new_class in self.cla_can_temp:
                     messagebox.showwarning("Warning", f"Class '{new_class}' already exists!")
                 else:
-                    with open(self.classcandidate_filename, 'a') as class_file:
-                        class_file.write(f"\n{new_class}")
-                    self.cla_can_temp.append(new_class)
-                    self.classcnt += 1
-                    self.classcandidate['values'] = self.cla_can_temp
-                    self.classcandidate.current(self.classcnt - 1)
-                    self.currentLabelclass = self.classcandidate.get()
-                    self.index = int(self.classcnt-1)
-                    messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")        
+                    if self.classcnt == 0:
+                        with open(self.classcandidate_filename, 'a') as class_file:
+                            class_file.write(f"{new_class}\n")
+
+                        self.cla_can_temp.append(new_class)
+                        self.classcnt += 1
+                        self.classcandidate['values'] = self.cla_can_temp
+                        self.classcandidate.current(self.classcnt - 1)
+                        self.currentLabelclass = self.classcandidate.get()
+                        self.index = int(self.classcnt-1)
+                        messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")
+                    else:
+                        with open(self.classcandidate_filename, 'a') as class_file:
+                            class_file.write(f"{new_class}\n")
+                        self.cla_can_temp.append(new_class)
+                        self.classcnt += 1
+                        self.classcandidate['values'] = self.cla_can_temp
+                        self.classcandidate.current(self.classcnt - 1)
+                        self.currentLabelclass = self.classcandidate.get()
+                        self.index = int(self.classcnt-1)
+                        messagebox.showinfo("Info", f"Class '{new_class}' added successfully!")        
             self.mainPanel.focus_set() # focus
 
     # Add the deleteClass function
@@ -392,6 +444,7 @@ class LabelTool():
         self.mainPanel.focus_set() #By calling focus_set() on a particular widget, you are designating that widget as the one that should receive keyboard events. 
 
         new_mainPanel.bind('v', self.pasteLastBbox) #press 'v' to get bbox of last drawn
+        new_mainPanel.bind('b', self.pasteLastBboxFile) #press 'b' to get bbox of last drawn from previous
 
         # Display the image on the canvas
         new_mainPanel.create_image(0, 0, image=self.tkimg, anchor=NW)
@@ -609,7 +662,7 @@ class LabelTool():
             if create_new_class:
                 if self.classcnt == 0:
                     with open(self.classcandidate_filename, 'a') as class_file:
-                        class_file.write(f"\n{new_class}")
+                        class_file.write(f"{new_class}\n")
 
                     self.cla_can_temp.append(new_class)
                     self.classcnt += 1
@@ -742,6 +795,8 @@ class LabelTool():
         self.saveImage()
         if self.cur < self.total:
             self.cur += 1
+            size = self.getLastBboxSize()
+            self.last_b_box = [size[0], size[1], size[2]] if size is not None else []
             self.loadImage()
         else:
             messagebox.showinfo("Info", "Already at the last image")
