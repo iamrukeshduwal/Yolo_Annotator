@@ -12,7 +12,7 @@ import convert
 from PIL import *
 
 # colors for the bboxes
-COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'orange', 'brown','crimson']
+COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'orange', 'brown','crimson','yellow']
 
 # image sizes for the examples
 SIZE = 256, 256
@@ -405,6 +405,14 @@ class LabelTool():
     #----------------------------------------------------------------------------------------
 
     #--------------------Function to load Image From Directory--------------------------------
+    def remove_substring(self,original_string):
+        substring_to_remove = '.jpg'
+        if substring_to_remove in original_string:
+            modified_string = original_string.replace(substring_to_remove, '')
+            return modified_string
+        else:
+            return original_string    
+
     def loadImage(self):
         
         imagepath = self.imageList[self.cur - 1]
@@ -456,7 +464,7 @@ class LabelTool():
 
         # Set the image name and label file name
         self.imagename = os.path.split(imagepath)[-1]
-        labelname = self.imagename + '.txt'
+        labelname = self.remove_substring(self.imagename) + '.txt'
         self.labelfilename = os.path.join(self.outDir, labelname)   
 
         # Update the reference to mainPanel
@@ -488,26 +496,6 @@ class LabelTool():
                 f.write(' '.join(map(str, bbox)) + '\n')
         print('Image No. %d saved' %(self.cur))
     #------------------------------------------------------------------------------------------
-
-    #--------------------------------------Function to return x,y cooriantes while mouse click on mainPanel canvas--------------------------------
-    # def mouseClick(self, event):
-    #     if self.tkimg:
-
-    #         if event.num == 1:  # Left mouse button clicked
-    #             if self.STATE['click'] == 0:
-    #                 self.STATE['x'], self.STATE['y'] = event.x, event.y
-    #             else:
-    #                 x1, x2 = min(self.STATE['x'], event.x), max(self.STATE['x'], event.x)
-    #                 y1, y2 = min(self.STATE['y'], event.y), max(self.STATE['y'], event.y)
-    #                 self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
-    #                 self.bboxIdList.append(self.bboxId)
-    #                 self.bboxId = None
-    #                 self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' % (
-    #                     self.currentLabelclass, x1, y1, x2, y2))
-    #                 self.listbox.itemconfig(len(self.bboxIdList) - 1, fg=COLORS[self.index])#COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
-    #             self.STATE['click'] = 1 - self.STATE['click']
-    #         elif event.num == 3:  # Right mouse button clicked
-    #             self.removeBBox(event)
 
     def mouseClick(self, event):
         self.display_no_class_message()
@@ -559,30 +547,6 @@ class LabelTool():
             
             self.totalBboxLabel.config(text='Total BBoxes: {}'.format(len(self.bboxList)))
 
-
-
-    #----------------------------------------------------------------------------------
-
-    #----------------------Functon to retrun x,y coordinates whicle moving mouse over mainPanel canvas--------------------
-    # def mouseMove(self, event):
-    #     if self.tkimg:
-
-    #         self.disp.config(text = 'x: %d, y: %d' %(event.x, event.y))
-    #         if self.tkimg:
-    #             if self.hl:
-    #                 self.mainPanel.delete(self.hl)
-    #             self.hl = self.mainPanel.create_line(0, event.y, self.tkimg.width(), event.y, width = 2)
-    #             if self.vl:
-    #                 self.mainPanel.delete(self.vl)
-    #             self.vl = self.mainPanel.create_line(event.x, 0, event.x, self.tkimg.height(), width = 2)
-    #         if 1 == self.STATE['click']:
-    #             if self.bboxId:
-    #                 self.mainPanel.delete(self.bboxId)
-    #             self.bboxId = self.mainPanel.create_rectangle(self.STATE['x'], self.STATE['y'], \
-    #                                                             event.x, event.y, \
-    #                                                             width = 2, \
-    #                                                             outline = COLORS[self.index])#COLORS[len(self.bboxList) % len(COLORS)])
-
     def mouseMove(self, event):
         self.display_no_class_message()
 
@@ -606,10 +570,7 @@ class LabelTool():
                 self.index = self.get_class_index(self.currentLabelclass)
                 self.bboxId = self.mainPanel.create_rectangle(self.STATE['x'], self.STATE['y'], x, y, width=2,
                                                             outline=COLORS[self.index])
-        
-
-    
-
+   
     #--------------------------------------------------------------------------------------------------------------------------    
 
     #--------------------------Delete Selected BBox ------------------------
