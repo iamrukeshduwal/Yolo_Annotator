@@ -12,7 +12,7 @@ import convert
 from PIL import *
 
 # colors for the bboxes
-COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'orange', 'brown','crimson']
+COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'orange', 'brown','crimson','yellow']
 
 # image sizes for the examples
 SIZE = 256, 256
@@ -71,7 +71,7 @@ class LabelTool():
 
         # ----------------- GUI stuff ---------------------
 
-        self.ldProjBtn = Button(self.frame, text = "Load Image", command = self.loadDir)
+        self.ldProjBtn = Button(self.frame, text = "Load Image", bg='#84a59d',relief='flat',command = self.loadDir)
         self.ldProjBtn.grid(row = 0, column = 0,sticky = W+E, padx=5)
 
         # main panel for labeling
@@ -88,11 +88,11 @@ class LabelTool():
         self.mainPanel.grid(row = 1, column = 1, columnspan = 3, rowspan = 4, sticky = W+N)
 
 		# Add two buttons for adding and deleting classes in the same row
-        self.btnAddClass = Button(self.frame, text='Add Class', command=self.addNewClass)
-        self.btnAddClass.grid(row=2, column=4, sticky=W+E, padx=(50, 130))
+        self.btnAddClass = Button(self.frame, text='Add Class', bg='#4cc9f0',fg = 'white',relief='raised',command=self.addNewClass)
+        self.btnAddClass.grid(row=2, column=4, sticky=W+E, padx=(50, 135))
 
-        self.btnDeleteClass = Button(self.frame, text='Delete Class', command=self.deleteClass)
-        self.btnDeleteClass.grid(row=2, column=4, sticky=W+E, padx=(150, 50))
+        self.btnDeleteClass = Button(self.frame, text='Delete Class', bg='#f28482',fg = 'white',relief='raised',command=self.deleteClass)
+        self.btnDeleteClass.grid(row=2, column=4, sticky=W+E, padx=(150, 55))
 
         # choose class
         self.classname = StringVar()
@@ -134,25 +134,25 @@ class LabelTool():
         
         self.listbox = Listbox(self.frame, width = 40, height = 12)
         self.listbox.grid(row = 4, column = 4, sticky = N+S)
-        self.btnDel = Button(self.frame, text = 'Clear', command = self.delBBox)
+        self.btnDel = Button(self.frame, text = 'Clear', bg='#c1121f',fg = 'white',relief='groove',command = self.delBBox)
         self.btnDel.grid(row = 5, column = 4, sticky = W+E+N)
-        self.btnClear = Button(self.frame, text = 'ClearAll', command = self.clearBBox)
+        self.btnClear = Button(self.frame, text = 'ClearAll',bg='#c1121f',fg = 'white',relief='groove', command = self.clearBBox)
         self.btnClear.grid(row = 6, column = 4, sticky = W+E+N)
 
         # control panel for image navigation
         self.ctrPanel = Frame(self.frame)
         self.ctrPanel.grid(row = 7, column = 1, columnspan = 4, sticky = W+E)
-        self.conv2YoloBtn = Button(self.ctrPanel, text='Convert YOLO', width = 15, command = self.convert2Yolo)
+        self.conv2YoloBtn = Button(self.ctrPanel, text='Convert YOLO',bg='#83C5BE',relief='flat', width = 15, command = self.convert2Yolo)
         self.conv2YoloBtn.pack(side = LEFT, padx = 5, pady = 3)
-        self.resetChkBtn = Button(self.ctrPanel, text='ResetCheckpoint', width = 15, command = self.resetCheckpoint)
+        self.resetChkBtn = Button(self.ctrPanel, text='ResetCheckpoint',bg='#C9ADA7',relief='flat', width = 15, command = self.resetCheckpoint)
         self.resetChkBtn.pack(side = LEFT, padx = 5, pady = 3)
-        self.loadChkBtn = Button(self.ctrPanel, text='LoadCheckpoint', width = 15, command = self.loadCheckpoint) 
+        self.loadChkBtn = Button(self.ctrPanel, text='LoadCheckpoint',bg='#C9ADA7',relief='flat', width = 15, command = self.loadCheckpoint) 
         self.loadChkBtn.pack(side = LEFT, padx = 5, pady = 3)
-        self.prevBtn = Button(self.ctrPanel, text='<< Prev', width = 10, command = self.prevImage)
+        self.prevBtn = Button(self.ctrPanel, text='<< Prev', width = 10,bg='#669BBC',relief='flat', command = self.prevImage)
         self.prevBtn.pack(side = LEFT, padx = 5, pady = 3)
-        self.skipBtn = Button(self.ctrPanel, text ='Skip', width = 10, command = self.skipImage)
+        self.skipBtn = Button(self.ctrPanel, text ='Skip', width = 10,bg='#f28482',relief='flat', command = self.skipImage)
         self.skipBtn.pack(side = LEFT, padx = 5, pady = 3)
-        self.nextBtn = Button(self.ctrPanel, text='Next >>', width = 10, command = self.nextImage)
+        self.nextBtn = Button(self.ctrPanel, text='Next >>', width = 10,bg='#669BBC',relief='flat', command = self.nextImage)
         self.nextBtn.pack(side = LEFT, padx = 5, pady = 3)
         self.progLabel = Label(self.ctrPanel, text = "Progress:     /    ")
         self.progLabel.pack(side = LEFT, padx = 5)
@@ -160,13 +160,13 @@ class LabelTool():
         self.tmpLabel.pack(side = LEFT, padx = 5)
         self.idxEntry = Entry(self.ctrPanel, width = 5)
         self.idxEntry.pack(side = LEFT)
-        self.goBtn = Button(self.ctrPanel, text = 'Go', command = self.gotoImage)
+        self.goBtn = Button(self.ctrPanel, text = 'Go',bg='#dde5b6',relief='ridge', command = self.gotoImage)
         self.goBtn.pack(side = LEFT)
 
         # example pannel for illustration
-        self.egPanel = Frame(self.frame, border = 10)
-        self.egPanel.grid(row = 1, column = 0, rowspan = 5, sticky = N)
-        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\nRight Click : Delete BB\n1-9 : Select Class")
+        self.egPanel = Frame(self.frame, border = 10, highlightbackground='#D4CDCD',bg='#f0f0f0',highlightthickness=2,bd=2)
+        self.egPanel.grid(row = 1, column = 0, rowspan = 5, sticky = N, padx=5, pady=5)
+        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\nb: Paste last BB from prev image\nRight Click : Delete BB\n1-9 : Select Class")
         self.tmpLabel2.pack(side = TOP)
         self.tmpLabel3 = Label(self.egPanel, text = "\nBasic Usage :\n1.Load Image\n2.Annotate\n3.Convert Yolo")
         self.tmpLabel3.pack(side = TOP)
@@ -405,6 +405,14 @@ class LabelTool():
     #----------------------------------------------------------------------------------------
 
     #--------------------Function to load Image From Directory--------------------------------
+    def remove_substring(self,original_string):
+        substring_to_remove = '.jpg'
+        if substring_to_remove in original_string:
+            modified_string = original_string.replace(substring_to_remove, '')
+            return modified_string
+        else:
+            return original_string    
+
     def loadImage(self):
         
         imagepath = self.imageList[self.cur - 1]
@@ -456,7 +464,7 @@ class LabelTool():
 
         # Set the image name and label file name
         self.imagename = os.path.split(imagepath)[-1]
-        labelname = self.imagename + '.txt'
+        labelname = self.remove_substring(self.imagename) + '.txt'
         self.labelfilename = os.path.join(self.outDir, labelname)   
 
         # Update the reference to mainPanel
@@ -488,26 +496,6 @@ class LabelTool():
                 f.write(' '.join(map(str, bbox)) + '\n')
         print('Image No. %d saved' %(self.cur))
     #------------------------------------------------------------------------------------------
-
-    #--------------------------------------Function to return x,y cooriantes while mouse click on mainPanel canvas--------------------------------
-    # def mouseClick(self, event):
-    #     if self.tkimg:
-
-    #         if event.num == 1:  # Left mouse button clicked
-    #             if self.STATE['click'] == 0:
-    #                 self.STATE['x'], self.STATE['y'] = event.x, event.y
-    #             else:
-    #                 x1, x2 = min(self.STATE['x'], event.x), max(self.STATE['x'], event.x)
-    #                 y1, y2 = min(self.STATE['y'], event.y), max(self.STATE['y'], event.y)
-    #                 self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
-    #                 self.bboxIdList.append(self.bboxId)
-    #                 self.bboxId = None
-    #                 self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' % (
-    #                     self.currentLabelclass, x1, y1, x2, y2))
-    #                 self.listbox.itemconfig(len(self.bboxIdList) - 1, fg=COLORS[self.index])#COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
-    #             self.STATE['click'] = 1 - self.STATE['click']
-    #         elif event.num == 3:  # Right mouse button clicked
-    #             self.removeBBox(event)
 
     def mouseClick(self, event):
         self.display_no_class_message()
@@ -559,30 +547,6 @@ class LabelTool():
             
             self.totalBboxLabel.config(text='Total BBoxes: {}'.format(len(self.bboxList)))
 
-
-
-    #----------------------------------------------------------------------------------
-
-    #----------------------Functon to retrun x,y coordinates whicle moving mouse over mainPanel canvas--------------------
-    # def mouseMove(self, event):
-    #     if self.tkimg:
-
-    #         self.disp.config(text = 'x: %d, y: %d' %(event.x, event.y))
-    #         if self.tkimg:
-    #             if self.hl:
-    #                 self.mainPanel.delete(self.hl)
-    #             self.hl = self.mainPanel.create_line(0, event.y, self.tkimg.width(), event.y, width = 2)
-    #             if self.vl:
-    #                 self.mainPanel.delete(self.vl)
-    #             self.vl = self.mainPanel.create_line(event.x, 0, event.x, self.tkimg.height(), width = 2)
-    #         if 1 == self.STATE['click']:
-    #             if self.bboxId:
-    #                 self.mainPanel.delete(self.bboxId)
-    #             self.bboxId = self.mainPanel.create_rectangle(self.STATE['x'], self.STATE['y'], \
-    #                                                             event.x, event.y, \
-    #                                                             width = 2, \
-    #                                                             outline = COLORS[self.index])#COLORS[len(self.bboxList) % len(COLORS)])
-
     def mouseMove(self, event):
         self.display_no_class_message()
 
@@ -606,10 +570,7 @@ class LabelTool():
                 self.index = self.get_class_index(self.currentLabelclass)
                 self.bboxId = self.mainPanel.create_rectangle(self.STATE['x'], self.STATE['y'], x, y, width=2,
                                                             outline=COLORS[self.index])
-        
-
-    
-
+   
     #--------------------------------------------------------------------------------------------------------------------------    
 
     #--------------------------Delete Selected BBox ------------------------
