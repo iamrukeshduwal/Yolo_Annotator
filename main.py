@@ -396,6 +396,8 @@ class LabelTool():
             return
         self.cur = 1
         self.total = len(self.imageList)
+        if not os.path.exists('./Result'): # when system cannot find the Result path
+            os.mkdir('./Result')
         self.outDir = os.path.join(r'./Result', '%s' % (self.category))
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
@@ -810,6 +812,8 @@ class LabelTool():
         if (self.category == ''):
             messagebox.showinfo("Error", "Please Annotate Image first")
         else:
+            if not os.path.exists('./RESULT_YOLO'):
+                os.makedirs('./RESULT_YOLO')
             outpath = "./Result_YOLO/" + self.category +'/'
             convert.Convert2Yolo(self.outDir+'/', outpath, self.category, self.cla_can_temp)
             messagebox.showinfo("Info", "YOLO data format conversion done")
