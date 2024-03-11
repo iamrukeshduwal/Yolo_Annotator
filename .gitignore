@@ -2,4 +2,7 @@
 /*.txt
 /**/*.txt
 /*.jpg
-/**/* .jpg
+/**/*.jpg
+
+*.jpg 
+*.txt 
