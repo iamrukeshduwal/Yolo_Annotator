@@ -48,7 +48,8 @@ The YOLO Annotator is a simple image annotation tool developed in Python using T
 2. Clone this repository:
    git clone https://github.com/iamrukeshduwal/Yolo_Annotator.git
 3. cd Yolo_Annotator
-4. python main.py
+4. Add input_path( folder containing image's to be annotated) , output and yolo output path in Config.yaml file 
+6. python main.py
 
 ## License
 
