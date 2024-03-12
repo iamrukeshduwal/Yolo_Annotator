@@ -3,7 +3,11 @@ from tkinter import messagebox, filedialog
 from tkinter import ttk
 from PIL import Image, ImageTk, ImageFilter
 from tkinter.simpledialog import askstring
+import os
+import yaml
 
+import sys
+sys.path.append(os.path.join(sys.path[0],'Annotator'))
 
 import os
 import glob
@@ -17,8 +21,13 @@ COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'o
 # image sizes for the examples
 SIZE = 256, 256
 
+def load_config(file_path):
+        with open(file_path, 'r') as file:
+            config = yaml.safe_load(file)
+            return config
+
 class LabelTool():
-    def __init__(self, master):
+    def __init__(self, master, dir_imgs, dir_out, dir_yolo_out):
         # set up the main frame
         self.parent = master
         self.parent.title("Yolo Annotator")
@@ -32,11 +41,12 @@ class LabelTool():
         self.index = 0
 
         # initialize global state
-        self.imageDir = ''
+        self.imageDir = dir_imgs
         self.imageList= []
         self.egDir = ''
         self.egList = []
-        self.outDir = ''
+        self.outDir = dir_out
+        self.yoloOut = dir_yolo_out
         self.xmlOutDir =''
         self.cur = 0
         self.total = 0
@@ -73,7 +83,8 @@ class LabelTool():
 
         self.ldProjBtn = Button(self.frame, text = "Load Image", bg='#84a59d',relief='flat',command = self.loadDir)
         self.ldProjBtn.grid(row = 0, column = 0,sticky = W+E, padx=5)
-
+        self.clearResBtn = Button(self.frame, text = "Clear Annotation", bg='#f28482',relief='flat',command = self.clear_prev_annotation)
+        self.clearResBtn.grid(row = 7, column = 0,sticky = W+E, padx=5)
         # main panel for labeling
         self.mainPanel = Canvas(self.frame, cursor='tcross')
         self.mainPanel.bind("<Button-1>", self.mouseClick)
@@ -83,7 +94,8 @@ class LabelTool():
         self.mainPanel.bind('b', self.pasteLastBboxFile) #press 'v' to get bbox of last drawn from previous file
         self.parent.bind("a", self.prevImage) # press 'a' to go backforward
         self.parent.bind("d", self.nextImage) # press 'd' to go forward
-        self.parent.bind("r", self.clearBBoxShortcut)
+        self.parent.bind("r", self.clearBBoxShortcut) 
+        self.parent.bind("q", self.close_program) # press 'q' to quit the program
 
         self.mainPanel.grid(row = 1, column = 1, columnspan = 3, rowspan = 4, sticky = W+N)
 
@@ -166,7 +178,7 @@ class LabelTool():
         # example pannel for illustration
         self.egPanel = Frame(self.frame, border = 10, highlightbackground='#D4CDCD',bg='#f0f0f0',highlightthickness=2,bd=2)
         self.egPanel.grid(row = 1, column = 0, rowspan = 5, sticky = N, padx=5, pady=5)
-        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\nb: Paste last BB from prev image\nRight Click : Delete BB\n1-9 : Select Class")
+        self.tmpLabel2 = Label(self.egPanel, text = "Key Shortcut :\na : Prev\nd : Next\nr : Delete BB\nv : Paste Last BB\nb: Paste last BB from prev image\nRight Click : Delete BB\n1-9 : Select Class \n q:Quit program")
         self.tmpLabel2.pack(side = TOP)
         self.tmpLabel3 = Label(self.egPanel, text = "\nBasic Usage :\n1.Load Image\n2.Annotate\n3.Convert Yolo")
         self.tmpLabel3.pack(side = TOP)
@@ -181,6 +193,16 @@ class LabelTool():
 
         self.frame.columnconfigure(1, weight = 1)
         self.frame.rowconfigure(4, weight = 1)
+
+
+    # ------------close program ------------------
+
+    def close_program(self, event=None):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.parent.destroy()
+
+
+   
 
     #----------------------function to display no class --------------------------------
     def display_no_class_message(self):
@@ -375,52 +397,61 @@ class LabelTool():
             class_index = self.cla_can_temp.index(class_name)
             return class_index
         except ValueError:
-            print(f"Class '{class_name}' not found in the list.")
+            # print(f"Class '{class_name}' not found in the list.")
             return None
 ################################################################################################
     #-----------------------Function For Load Directory--------------------------------
     def loadDir(self, dbg=False):
         self.imageList = []
-        if not dbg:
-            self.parent.focus()
-            s = str(filedialog.askdirectory(initialdir=os.getcwd())).split('/')[-1]
-            self.category = s
-        else:
-            s = r'D:\workspace\python\labelGUI'
-        self.imageDir = os.path.join(r'./Images', '%s' % (self.category))
+        # if not dbg:
+        #     self.parent.focus()
+        #     s = str(filedialog.askdirectory(initialdir=os.getcwd())).split('/')[-1]
+        #     self.category = s
+        # else:
+        #     s = r'D:\workspace\python\labelGUI'
+        self.category = 'Sample'
+        # self.imageDir = os.path.join(r'./Images', '%s' % (self.category))
         for ext in ('*.png', '*.jpg'):
             self.imageList.extend(glob.glob(os.path.join(self.imageDir, ext)))
         if len(self.imageList) == 0:
             messagebox.showinfo("Error", "No JPG/PNG images found in the specified dir!")
-            print('No JPG/PNG images found in the specified dir!')
+            # print('No JPG/PNG images found in the specified dir!')
             return
         self.cur = 1
         self.total = len(self.imageList)
-        if not os.path.exists('./Result'): # when system cannot find the Result path
-            os.mkdir('./Result')
-        self.outDir = os.path.join(r'./Result', '%s' % (self.category))
+        # self.outDir = os.path.join(r'./Result', '%s' % (self.category))
+        os.makedirs(self.outDir, exist_ok=True)
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
         self.loadImage() #Call Function to load the image
-        print('%d images loaded from %s' % (self.total, self.category))
+        # print('%d images loaded from %s' % (self.total, self.category))
         messagebox.showinfo("Info", "%d images loaded from %s" % (self.total, self.category))
     #----------------------------------------------------------------------------------------
 
-    #--------------------Function to load Image From Directory--------------------------------
-    def remove_substring(self,original_string):
-        substring_to_remove = '.jpg'
-        if substring_to_remove in original_string:
-            modified_string = original_string.replace(substring_to_remove, '')
-            return modified_string
-        else:
-            return original_string    
+    #--------------Function to clear all previous annotated text files-----------------------
+    def clear_prev_annotation(self):
+        answer = messagebox.askquestion("Clear Annotation", "Are you sure you want to clear all previous Annotation?")
+        if answer:
+            for filename in os.listdir(self.outDir):
+                file_path = os.path.join(self.outDir, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+
+            for filename in os.listdir(self.yoloOut):
+                file_path = os.path.join(self.yoloOut, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+
+            # print('Cleared annotation from Result and Result yolo.')
+    #----------------------------------------------------------------------------------------
+
+    #--------------------Function to load Image From Directory-------------------------------- 
 
     def loadImage(self):
         
         imagepath = self.imageList[self.cur - 1]
         self.img = Image.open(imagepath)
-        self.tkimg = ImageTk.PhotoImage(self.img)
-
+        self.tkimg = ImageTk.PhotoImage(self.img, master=self.parent)
         # Create a frame to hold the scrollbars and canvas
         frame = Frame(self.frame)
         frame.grid(row=1, column=1, columnspan=3, rowspan=4, sticky=W + N)
@@ -463,10 +494,12 @@ class LabelTool():
         # Update progress label and clear bounding boxes
         self.progLabel.config(text="%04d/%04d" % (self.cur, self.total))
         self.clearBBox()
+        import re
 
         # Set the image name and label file name
         self.imagename = os.path.split(imagepath)[-1]
-        labelname = self.remove_substring(self.imagename) + '.txt'
+        labelname = re.split('.jpg|.png|.JPG|.jpeg|.JPEG',self.imagename)[0] + '.txt'
+        # print(f'+++{labelname}+++')
         self.labelfilename = os.path.join(self.outDir, labelname)   
 
         # Update the reference to mainPanel
@@ -476,7 +509,7 @@ class LabelTool():
         self.loadBBox()
         self.totalBboxLabel.config(text='Total BBoxes: {}'.format(len(self.bboxList)))
 
-        print("Image loaded successfully!")
+        # print("Image loaded successfully!")
 
     def scrollCanvas(self, event):
         # Handle mouse wheel scrolling to scroll the canvas
@@ -496,7 +529,7 @@ class LabelTool():
             f.write('%d\n' %len(self.bboxList))
             for bbox in self.bboxList:
                 f.write(' '.join(map(str, bbox)) + '\n')
-        print('Image No. %d saved' %(self.cur))
+        # print('Image No. %d saved' %(self.cur))
     #------------------------------------------------------------------------------------------
 
     def mouseClick(self, event):
@@ -661,7 +694,7 @@ class LabelTool():
     def check_and_create_new_classes(self, class_list_from_file):
         new_classes = set(class_list_from_file) - set(self.cla_can_temp)
         if new_classes:
-            print(f"New classes found: {', '.join(new_classes)}")
+            # print(f"New classes found: {', '.join(new_classes)}")
 
             for new_class in new_classes:
                 self.addNewClass_(new_class)
@@ -812,15 +845,46 @@ class LabelTool():
         if (self.category == ''):
             messagebox.showinfo("Error", "Please Annotate Image first")
         else:
-            if not os.path.exists('./RESULT_YOLO'):
-                os.makedirs('./RESULT_YOLO')
-            outpath = "./Result_YOLO/" + self.category +'/'
-            convert.Convert2Yolo(self.outDir+'/', outpath, self.category, self.cla_can_temp)
+            # outpath = "./Result_YOLO/" + self.category +'/'
+            os.makedirs(self.yoloOut, exist_ok=True)
+            convert.Convert2Yolo(self.outDir+'/', self.yoloOut, self.category, self.cla_can_temp, self.imageDir)
             messagebox.showinfo("Info", "YOLO data format conversion done")
     #--------------------------------------------------------------------------------------------------------------------------------
+            
+
+    
+            
+# def run_annotator(img_dir, out_dir, yolo_out_dir):
+#     root = Tk()
+#     tool = LabelTool(root, img_dir, out_dir, yolo_out_dir)
+#     root.resizable(width =  True, height = True)
+
+    # def on_closing():
+    #     brand_directories_update_method()
+    #     yolo_pretrain_func()
+    #     check_negative()
+        
+    #     window.destroy()
+
+    # root.protocol("WM_DELETE_WINDOW", on_closing)
+    # root.mainloop()
+
+# run_annotator('./Images/Sample/', './Result/Sample/', './Result_YOLO/Sample/')
+            
+ #----------config yamal load ---------
+    
 
 if __name__ == '__main__':
+   
+
+    config = load_config('config.yaml')
+
+    img_dir = config['Input_dir']
+    out_dir = config['Output_dir']
+    yolo_out_dir = config['yolo_output_dir']
+
+
     root = Tk()
-    tool = LabelTool(root)
+    tool = LabelTool(root,img_dir,out_dir,yolo_out_dir)
     root.resizable(width =  True, height = True)
     root.mainloop()

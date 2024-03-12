@@ -2,3 +2,7 @@
 ./*.txt
 ./**/*.txt
 ./*.jpg
+
+*.jpg
+*.txt
+*.JPG 

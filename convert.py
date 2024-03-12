@@ -18,11 +18,16 @@ def convert(size, box):
     y = y*dh
     h = h*dh
     return (x,y,w,h)
-    
 
-def Convert2Yolo(mypath, outpath, project, classes):
+def search_img(search_string, dir_path):
+    files = os.listdir(dir_path)
+    matching_files = [file for file in files if search_string in file]
+    return matching_files[0]
+
+def Convert2Yolo(mypath, outpath, project, classes, imageDir):
     wd = getcwd()
-    list_file = open('%s/log/%s_list.txt'%(wd, project), 'w')
+    # print(f'===={wd}====')
+    # list_file = open('%s/log/%s_list.txt'%(wd, project), 'w')
     
     """ Get input text file list """
     txt_name_list = []
@@ -36,31 +41,33 @@ def Convert2Yolo(mypath, outpath, project, classes):
         # txt_file =  open("Labels/stop_sign/001.txt", "r")
         """ Open input text files """
         txt_path = mypath + txt_name
-        print("Input:" + txt_path)
+        # print("Input:" + txt_path)
         txt_file = open(txt_path, "r")
         lines = txt_file.read().split('\n')   #for ubuntu, use "\r\n" instead of "\n"
         
         """ Open output text files """
         if not os.path.exists(outpath):
             os.mkdir(outpath)
-        txt_outpath = outpath + re.split('.jpg|.png',txt_name)[0]
-        print("Output:" + txt_outpath)
+        txt_outpath = os.path.join(outpath, re.split('.jpg|.png',txt_name)[0])
+        # print("Output:" + txt_outpath)
         txt_outfile = open(txt_outpath, "w")
         
         
         """ Convert the data to YOLO format """
         ct = 0
         for line in lines:
-            #print('lenth of line is: ')
-            #print(len(line))
-            #print('\n')
             elems = line.split(' ')
+            img_path = os.path.join(imageDir, search_img(os.path.splitext(txt_name)[0],imageDir))
+            destination_path = os.path.join(outpath, search_img(os.path.splitext(txt_name)[0],imageDir))
+            with open(img_path, 'rb') as source_file:
+                    with open(destination_path, 'wb') as destination_file:
+                        destination_file.write(source_file.read())
             if(len(elems) >= 2):
             #if(len(line) >= 2):
                 ct = ct + 1
-                print(line)
+                # print(line)
                 elems = line.split(' ')
-                print(elems)
+                # print(elems)
                 xmin = elems[0]
                 xmax = elems[2]
                 ymin = elems[1]
@@ -69,22 +76,25 @@ def Convert2Yolo(mypath, outpath, project, classes):
                 if cls not in classes:
                     exit(0)
                 cls_id = classes.index(cls)
-                print(elems[0])
-
-                img_path = str('%s/Images/%s/%s'%(wd, project, os.path.splitext(txt_name)[0])+'.jpg')
+                # print(elems[0])
+                # print('Text name : ', txt_name)
+                # img_path = str('%s/Images/%s/%s'%(wd, project, os.path.splitext(txt_name)[0])+'.jpg')
+                # img_path = os.path.join(imageDir, search_img(os.path.splitext(txt_name)[0],imageDir))
+                # destination_path = os.path.join(outpath, search_img(os.path.splitext(txt_name)[0],imageDir))
+                # print('Image path:  ',img_path)
+                # with open(img_path, 'rb') as source_file:
+                #     with open(destination_path, 'wb') as destination_file:
+                #         destination_file.write(source_file.read())
                 #t = magic.from_file(img_path)
                 #wh= re.search('(\d+) x (\d+)', t).groups()
                 im=Image.open(img_path)
                 w= int(im.size[0])
                 h= int(im.size[1])
-                #w = int(xmax) - int(xmin)
-                #h = int(ymax) - int(ymin)
-                # print(xmin)
-                print(w, h)
-                print(float(xmin), float(xmax), float(ymin), float(ymax))
+                # print(w, h)
+                # print(float(xmin), float(xmax), float(ymin), float(ymax))
                 b = (float(xmin), float(xmax), float(ymin), float(ymax))
                 bb = convert((w,h), b)
-                print(bb)
+                # print(bb)
                 
                 txt_outfile.write(str(cls_id) + " " + " ".join([str(a) for a in bb]) + '\n')
     
@@ -92,18 +102,18 @@ def Convert2Yolo(mypath, outpath, project, classes):
         txt_file.close()
         
         """ Save those images with bb into list"""
-        if(ct != 0):
-            list_file.write('%s/images/%s/%s\n'%(wd, cls, os.path.splitext(txt_name)[0]))
-        else :
-            os.remove(txt_outpath)
+        # if(ct != 0):
+        #     list_file.write('%s/images/%s/%s\n'%(wd, cls, os.path.splitext(txt_name)[0]))
+        # else :
+        #     os.remove(txt_outpath)
         
         print ("\n")
                     
-    list_file.close()   
+    # list_file.close()   
 
-if __name__ == '__main__':
-    mypath = "./Result/yeongju/"
-    outpath = "./Result_YOLO/yeongju/"
-    project = "yeongju"
-    classes = ["pothole","patchdamaged","spalling"]
-    Convert2Yolo(mypath, outpath, project, classes)  
+# if __name__ == '__main__':
+#     mypath = "./Result/yeongju/"
+#     outpath = "./Result_YOLO/yeongju/"
+#     project = "yeongju"
+#     classes = ["pothole","patchdamaged","spalling"]
+#     Convert2Yolo(mypath, outpath, project, classes)  
