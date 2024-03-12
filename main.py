@@ -27,7 +27,7 @@ def load_config(file_path):
             return config
 
 class LabelTool():
-    def __init__(self, master, dir_imgs, dir_out, dir_yolo_out):
+    def __init__(self, master, dir_imgs, dir_out, dir_yolo_out,image_extention):
         # set up the main frame
         self.parent = master
         self.parent.title("Yolo Annotator")
@@ -47,6 +47,7 @@ class LabelTool():
         self.egList = []
         self.outDir = dir_out
         self.yoloOut = dir_yolo_out
+        self.image_extention = image_extention
         self.xmlOutDir =''
         self.cur = 0
         self.total = 0
@@ -411,11 +412,10 @@ class LabelTool():
         #     s = r'D:\workspace\python\labelGUI'
         self.category = 'Sample'
         # self.imageDir = os.path.join(r'./Images', '%s' % (self.category))
-        for ext in ('*.png', '*.jpg'):
-            self.imageList.extend(glob.glob(os.path.join(self.imageDir, ext)))
-        if len(self.imageList) == 0:
-            messagebox.showinfo("Error", "No JPG/PNG images found in the specified dir!")
-            # print('No JPG/PNG images found in the specified dir!')
+        for ext in self.image_extention:
+            self.imageList.extend(glob.glob(os.path.join(self.imageDir, '*' + ext)))
+        if not self.imageList:
+            messagebox.showinfo("Error", "No images found in the specified directory with the specified extensions!")
             return
         self.cur = 1
         self.total = len(self.imageList)
@@ -431,7 +431,9 @@ class LabelTool():
     #--------------Function to clear all previous annotated text files-----------------------
     def clear_prev_annotation(self):
         answer = messagebox.askquestion("Clear Annotation", "Are you sure you want to clear all previous Annotation?")
-        if answer:
+        if answer == "yes":
+            print("hi")
+            self.delete_current_bbox_also()
             for filename in os.listdir(self.outDir):
                 file_path = os.path.join(self.outDir, filename)
                 if os.path.isfile(file_path):
@@ -629,7 +631,14 @@ class LabelTool():
         self.bboxIdList = []
         self.bboxList = []
         self.mainPanel.focus_set() #focus
+    
+    def delete_current_bbox_also(self):
+        for idx in range(len(self.bboxIdList)):
+                    self.mainPanel.delete(self.bboxIdList[idx])
 
+        self.listbox.delete(0, len(self.bboxList))
+        self.bboxIdList = []
+        self.bboxList = []
 
     def clearBBoxShortcut(self, event):
         if self.bboxList:
@@ -699,9 +708,10 @@ class LabelTool():
             for new_class in new_classes:
                 self.addNewClass_(new_class)
             else:
-                print("No new classes created.")
+                pass
+                # print("No new classes created.")
         else:
-            print("No new classes found.")
+            # print("No new classes found.")
             return None
 
 
@@ -882,9 +892,10 @@ if __name__ == '__main__':
     img_dir = config['Input_dir']
     out_dir = config['Output_dir']
     yolo_out_dir = config['yolo_output_dir']
+    image_extention = config['image_extensions']
 
 
     root = Tk()
-    tool = LabelTool(root,img_dir,out_dir,yolo_out_dir)
+    tool = LabelTool(root,img_dir,out_dir,yolo_out_dir,image_extention)
     root.resizable(width =  True, height = True)
     root.mainloop()
