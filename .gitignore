@@ -1,8 +1,8 @@
 /__pycache__
-/*.txt
-/**/*.txt
-/*.jpg
-/**/*.jpg
+./*.txt
+./**/*.txt
+./*.jpg
 
-*.jpg 
-*.txt 
+*.jpg
+*.txt
+*.JPG 

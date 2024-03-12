@@ -33,7 +33,6 @@ The YOLO Annotator is a simple image annotation tool developed in Python using T
 6. Click `Skip` to skip an unwanted image from the directory and skip the annotation for that image (the skipped image path will be saved in log/skip.txt).
 7. Click `ConvertYOLO` or press <kbd>c</kbd> to convert the labeling result to YOLO format. The result will be saved in **Result_YOLO/[folder name]/..**.
 8. Use the 'Add Class' and 'Delete Class' buttons in the UI to manage classes dynamically.
-
 9. Press keyborad shortcut <kbd>q</kbd> to quit the program
 
 ## Additional Features
@@ -41,7 +40,6 @@ The YOLO Annotator is a simple image annotation tool developed in Python using T
 -   **Bounding Box Count**: The tool provides the count of the number of bounding boxes drawn inside image.
 -   **Color Assignment**: Each class is assigned a unique color for better visualization.
 -   **Paste Last Bounding Box**: Press 'v' to paste the last drawn bounding box where the mouse pointer is located.
--   **Paste Last Bounding Box From Previous Image**: Press 'b' to paste the last drawn bounding box from previous image where the mouse pointer is located.
 -   **Scroll Support**: Users can scroll horizontally and vertically for larger images.
 
 ## How to Run

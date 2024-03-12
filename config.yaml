@@ -1,0 +1,3 @@
+Input_dir: data_for_yolo_annotator
+Output_dir: aug_result_suraj
+yolo_output_dir: yolo_dir_suraj
