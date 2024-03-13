@@ -208,7 +208,9 @@ class LabelTool():
     #----------------------function to display no class --------------------------------
     def display_no_class_message(self):
         if not self.cla_can_temp:
-            messagebox.showwarning("Warning", "No classes available. Please create a class first.")
+            confirmation = messagebox.askyesno("Warning", "No classes available. Want to create a new class?")
+            if confirmation:
+                self.addNewClass()
             return
     #------------------------------------------------------------------------------
 
@@ -432,7 +434,6 @@ class LabelTool():
     def clear_prev_annotation(self):
         answer = messagebox.askquestion("Clear Annotation", "Are you sure you want to clear all previous Annotation?")
         if answer == "yes":
-            print("hi")
             self.delete_current_bbox_also()
             for filename in os.listdir(self.outDir):
                 file_path = os.path.join(self.outDir, filename)
